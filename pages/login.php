@@ -11,11 +11,11 @@
     session_name('login');
     session_start();
 
-    $db = new DB();
+    $db = DB::getInstance();
 
     if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($_POST['password'])) {
-        $username = htmlentities(strip_tags(trim($_POST['username'])));
-        $password = htmlentities(strip_tags(trim($_POST['password'])));
+        $username = html_entity_decode(strip_tags(trim($_POST['username'])));
+        $password = html_entity_decode(strip_tags(trim($_POST['password'])));
         $db->login($username, $password);
     }
 ?>

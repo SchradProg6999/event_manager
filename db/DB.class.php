@@ -8,13 +8,22 @@
 
 class DB {
     private $dbh;
+    private static $instance = false;
 
     function __construct() {
         try {
             $this->dbh = new PDO("mysql:host={$_SERVER['DB_SERVER']};dbname={$_SERVER['DB']}", $_SERVER['DB_USER'], $_SERVER['DB_PASSWORD']);
         } catch (PDOException $e) {
-            die("Pdo Exception thrown");
+            die("Unable to connect to database");
         }
+    }
+
+    // making database a singleton
+    public static function getInstance() {
+        if(self::$instance === false) {
+            self::$instance = new DB();
+        }
+        return self::$instance;
     }
 
     public function login($username, $password) {
@@ -43,6 +52,7 @@ class DB {
         }
         else {
             //$_SESSION['login_error'] = true;
+            die();
         }
     }
 
@@ -51,7 +61,7 @@ class DB {
         switch($role){
             case '1':
                 $_SESSION['admin'] = true;
-                //header('Location: admin.php');
+                header('Location: admin.php');
                 echo 'admin permissions';
                 break;
             case '2':
@@ -61,7 +71,7 @@ class DB {
                 break;
             case '3':
                 // regular user
-                $_SESSION['attendee'] = true;
+                $_SESSION['AttendeeClass'] = true;
                 //header('Location: events.php');
                 echo 'regular attendee';
                 break;
@@ -69,5 +79,51 @@ class DB {
                 echo 'regular attendee';
         }
     }
+
+    // user functions
+    public function addUser($name, $password, $role) {
+        try {
+            $queryString = "insert into attendee (name, password, role) values (:name,:password,:role)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "name"=>$name,
+                    "password"=> $password,
+                    "role"=>$role
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
+    }
+
+    public function editUser() {
+
+    }
+
+    public function deleteUser() {
+
+    }
+
+    public function viewAllUsers() {
+
+    }
+
+    public function viewUserByName($name) {
+        try {
+            $queryString = "select * from attendee where name = :name";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(['name'=>$name]);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
+    }
+
 } // end of class
 ?>
