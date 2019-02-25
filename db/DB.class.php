@@ -100,8 +100,47 @@ class DB {
         }
     }
 
-    public function editUser() {
+    public function editUser($id, $name, $password, $role) {
+        try {
 
+            $queryString = "update attendee set name = :name, password = :password, role = :role where idattendee = :id";
+
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "id" => $id,
+                    "name" => $name,
+                    "password" => $password,
+                    "role" => $role
+                ]
+            );
+            return $stmt->rowCount();
+
+            // user only put in an id so dont even try the query
+//            if(count($fields) == 1) {
+//                exit();
+//            }
+
+//            foreach($fields as $field) {
+//                switch($field) {
+//                    case "name":
+//                        $queryString .= "name = :name,";
+//                        break;
+//                    case "password":
+//                        $queryString .= "password = :password,";
+//                        break;
+//                    case "role":
+//                        $queryString .= "role = :role";
+//                        break;
+//                }
+//            }
+            //$queryString .= "where idattendee = :id";
+
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
     public function deleteUser() {
@@ -112,12 +151,16 @@ class DB {
 
     }
 
-    public function viewUserByName($name) {
+    public function viewUserById($id) {
         try {
-            $queryString = "select * from attendee where name = :name";
+            $data = [];
+            $queryString = "select * from attendee where idattendee = :id";
             $stmt = $this->dbh->prepare($queryString);
-            $stmt->execute(['name'=>$name]);
-            return $stmt->rowCount();
+            $stmt->execute(['id'=>$id]);
+            while($row = $stmt->fetch()) {
+                $data[] = $row;
+            }
+            return $data;
         }
         catch(PDOException $e) {
             echo $e->getMessage(); // TODO: send user a notification saying that something went wrong

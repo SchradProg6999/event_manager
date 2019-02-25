@@ -1,0 +1,17 @@
+.admin-user-lookup-info {
+    font-weight: bold;
+}
+
+.label-inline {
+    display: inline-block;
+    width: 80px;
+    text-align: left;
+}
+
+.login-form {
+    text-align: center;
+}
+
+.login-header {
+    text-align: center;
+}

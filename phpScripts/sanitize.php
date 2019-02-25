@@ -6,6 +6,7 @@
  * Time: 6:22 PM
  */
 
+    // gets any data array passed into it super squeaky clean before it heads off to the database
     function sanitize($arrayToClean) {
         $cleanedData = [];
 
