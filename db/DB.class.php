@@ -43,16 +43,11 @@ class DB {
         );
 
         $userInfo[] = $stmt->fetch();
-        print("<pre>".print_r($userInfo,true)."</pre>");
 
         // must have received valid username and password
         if($userInfo[0] != "" && count($userInfo) == 1) {
             $_SESSION['username'] = $username;
             $this->checkRoleAndRedirect($userInfo[0]['role']);
-        }
-        else {
-            //$_SESSION['login_error'] = true;
-            die();
         }
     }
 
@@ -143,12 +138,17 @@ class DB {
         }
     }
 
-    public function deleteUser() {
-
-    }
-
-    public function viewAllUsers() {
-
+    public function deleteUser($id) {
+        try {
+            $queryString = "delete from attendee where idattendee = :id";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(['id'=>$id]);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
     public function viewUserById($id) {
@@ -156,7 +156,7 @@ class DB {
             $data = [];
             $queryString = "select * from attendee where idattendee = :id";
             $stmt = $this->dbh->prepare($queryString);
-            $stmt->execute(['id'=>$id]);
+            $stmt->execute(['id'=>(int)$id]);
             while($row = $stmt->fetch()) {
                 $data[] = $row;
             }
@@ -166,6 +166,74 @@ class DB {
             echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
             die();
         }
+    }
+
+    // TODO: event functionality
+    public function addEvent($data) {
+        try {
+            $queryString = "insert into event (name, datestart, dateend, numberallowed, venue) values (:name, :datestart, :dateend, :numberallowed, :venue)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "name"=> $data[0],
+                    "datestart"=> $data[1],
+                    "dateend"=>$data[2],
+                    "numberallowed"=>$data[3],
+                    "venue"=>$data[4]
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    public function editEvent() {
+
+    }
+
+    public function deleteEvent() {
+
+    }
+
+    public function viewAllEvents() {
+
+    }
+
+
+    // TODO: venue functionality
+    public function addVenue() {
+
+    }
+
+    public function editVenue() {
+
+    }
+
+    public function deleteVenue() {
+
+    }
+
+    public function viewAllVenues() {
+
+    }
+
+    // TODO: session functionality
+    public function addSession() {
+
+    }
+
+    public function editSession() {
+
+    }
+
+    public function deleteSession() {
+
+    }
+
+    public function viewAllSessions() {
+
     }
 
 } // end of class

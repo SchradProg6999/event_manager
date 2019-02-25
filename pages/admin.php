@@ -15,6 +15,7 @@
     session_start();
 
     $recordsFound = [];
+    $recordsDeleted = "";
 
     if($_SESSION['admin'] === true) {
         $admin = new AdminClass($_SESSION['username']);
@@ -74,9 +75,45 @@
         // looking up a user
         if(isset($_POST['findUser'])) {
             $dirtyData = [];
-            $dirtyData[] = $_POST['findUserID'];
+            if(isset($_POST['findUserID'])) {
+                $dirtyData[] = $_POST['findUserID'];
+                $cleanedData = sanitize($dirtyData);
+                $recordsFound = $admin->getUserByName($cleanedData);
+            }
+        }
+
+
+        if(isset($_POST['deleteUser'])) {
+            $dirtyData = [];
+            $dirtyData[] = $_POST['deleteUserByID'];
             $cleanedData = sanitize($dirtyData);
-            $recordsFound = $admin->getUserByName($cleanedData);
+            $recordsDeleted = $admin->deleteUser($cleanedData);
+        }
+
+        if(isset($_POST['addEvent'])) {
+            $requiredFields = array('addEventName', 'addEventStartDate', 'addEventEndDate', 'addEventMaxCap', 'addAssocVenue');
+            $dirtyData = [];
+            foreach($requiredFields as $requiredField) {
+                if(!isset($_POST[$requiredField])) {
+                    exit();
+                }
+
+                // for the dates
+                if($requiredField == 'addEventStartDate' || $requiredField == 'addEventEndDate') {
+                    $newDate = $_POST[$requiredField];
+                    $newDate = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $newDate);
+                    $dirtyData[] = $newDate;
+                }
+                else {
+                    $dirtyData[] = $_POST[$requiredField];
+                }
+            }
+            // sanitize the data
+            $cleanedData = sanitize($dirtyData);
+
+            if($admin->addEvent($cleanedData) === false) {
+                echo 'query failed';
+            }
         }
     }
 
@@ -124,27 +161,51 @@
                     <label class="label-inline">UserID: </label><input type="text" name="deleteUserByID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$"><br>
                     <input type="submit" name="deleteUser" value="Delete">
                 </form>
+                <div>
+                    <?php
+                        if(isset($_POST['deleteUser'])) {
+                            if($recordsDeleted > 0) {
+                                echo "<p>Record Deleted Successfully!</p>";
+                            }
+                        }
+                    ?>
+                </div>
             </div>
             <div class="col-md-3">
                 <h3>Find User</h3>
                 <form action="" method="post">
-                    <label class="label-inline">UserID: </label><input type="text" name="findUserID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$"><br>
+                    <label class="label-inline">UserID: </label><input type="text" name="findUserID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$" required><br>
                     <input type="submit" name="findUser" value="Search">
                 </form>
             </div>
             <div class="records-found">
                 <?php
-                    if(!empty($recordsFound) && isset($_POST['findUser'])) {
-                        echo "<h4>Record Found!</h4>";
-                        foreach($recordsFound as $record) {
-                            echo "<p>UserName: <span class='admin-user-lookup-info'>$record[name]</span></p><p>Role: <span class='admin-user-lookup-info'>" . getUserRole($record['role']) . "</span></p>";
+                    if(isset($_POST['findUser'])) {
+                        if(sizeof($recordsFound) > 0) {
+                            echo "<h4>Record Found!</h4>";
+                            foreach($recordsFound as $record) {
+                                echo "<p>UserName: <span class='admin-user-lookup-info'>$record[name]</span></p><p>Role: <span class='admin-user-lookup-info'>" . getUserRole($record['role']) . "</span></p>";
+                            }
                         }
-                    }
-                    else {
-                        //echo "<h4>No Records Found!</h4>";
+                        else {
+                            echo "<h4>No Records Found!</h4>";
+                        }
                     }
                 ?>
             </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-3">
+            <h3>Add Event</h3>
+            <form action="" method="post">
+                <label class="label-inline">Event Name: </label><input type="text" name="addEventName" required><br>
+                <label class="label-inline">Start Date: </label><input type="text" name="addEventStartDate" placeholder="1999-01-01 21:30:00" pattern="^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$"><br>
+                <label class="label-inline">End Date: </label><input type="text" name="addEventEndDate" pattern="^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$"><br>
+                <label class="label-inline">Maximum Capacity: </label><input type="text" name="addEventMaxCap"><br>
+                <label class="label-inline">Associated Venue: </label><input type="text" name="addAssocVenue"><br>
+                <input type="submit" name="addEvent" value="Add">
+            </form>
         </div>
     </div>
     <div class="button col-md-12">

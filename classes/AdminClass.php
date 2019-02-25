@@ -65,4 +65,13 @@ class AdminClass {
         $numRowsEffected = $this->db->editUser($data[0], $data[1], $hashedPass, $data[3]);
         return $numRowsEffected;
     }
+
+    function deleteUser($data) {
+        $recordsDeleted = $this->db->deleteUser($data[0]);
+        return $recordsDeleted;
+    }
+
+    function addEvent($data) {
+        return $this->db->addEvent($data);
+    }
 } // end of class
