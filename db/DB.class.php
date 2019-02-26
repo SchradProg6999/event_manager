@@ -51,6 +51,9 @@ class DB {
             $_SESSION['username'] = $username;
             $this->checkRoleAndRedirect($userInfo[0]['role']);
         }
+        else {
+            return false;
+        }
     }
 
     private function checkRoleAndRedirect($role) {
@@ -59,7 +62,6 @@ class DB {
             case '1':
                 $_SESSION['admin'] = true;
                 header('Location: admin.php');
-                echo 'admin permissions';
                 break;
             case '2':
                 $_SESSION['event_manager'] = true;

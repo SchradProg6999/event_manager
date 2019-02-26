@@ -25,12 +25,35 @@
     text-align: center;
 }
 
+.login-error {
+    text-align: center;
+    color: #cc0000;
+    font-weight: bold;
+}
+
 .login-header {
     text-align: center;
 }
 
 .container-block {
     margin-bottom: 50px;
+}
+
+.logout-button {
+    padding: 10px;
+    background-image: linear-gradient(to bottom, #3399aa, #4A18DF);
+    font-size: 30px;
+    color: #f8f8f8;
+}
+
+.logout-button:hover {
+    color: #f8f8f8;
+    text-decoration: none;
+}
+
+.logout-button-wrapper {
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 @media screen and (min-width: 1200px){

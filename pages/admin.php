@@ -421,8 +421,8 @@
             </div>
         </div>
     </div>
-    <div class="button col-md-12">
-        <a href="../phpScripts/logout.php">Logout</a>
+    <div class="col-md-12 logout-button-wrapper">
+        <a class="logout-button" href="../phpScripts/logout.php">Logout</a>
     </div>
 </body>
 </html>

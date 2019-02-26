@@ -16,7 +16,7 @@
     if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['username']) && isset($_POST['password'])) {
         $username = html_entity_decode(strip_tags(trim($_POST['username'])));
         $password = html_entity_decode(strip_tags(trim($_POST['password'])));
-        $db->login($username, $password);
+        $loginStatus = $db->login($username, $password);
     }
 ?>
 
@@ -31,13 +31,19 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class='login-error'>
-        <?php //echo $_SESSION['login_error'] ? "Invalid Username or Password" : "" ?>
-    </div>
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <h1 class="login-header">Event Manager</h1>
+            </div>
+            <div class='col-md-12 login-error'>
+                <?php
+                if(isset($_POST['username']) && isset($_POST['password'])) {
+                    if($loginStatus === false) {
+                        echo "Invalid Username or Password";
+                    }
+                }
+                ?>
             </div>
             <div class="col-md-12 login-form">
                 <form action="" method="post">
