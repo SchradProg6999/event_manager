@@ -2,6 +2,19 @@
     font-weight: bold;
 }
 
+.admin-block-info {
+    margin-bottom: 20px;
+}
+
+.admin-control-header {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.event-row-header {
+    font-weight: bold;
+}
+
 .label-inline {
     display: inline-block;
     width: 80px;
@@ -14,4 +27,14 @@
 
 .login-header {
     text-align: center;
+}
+
+.container-block {
+    margin-bottom: 50px;
+}
+
+@media screen and (min-width: 1200px){
+    body .container {
+        max-width: 1300px;
+    }
 }

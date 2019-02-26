@@ -6,6 +6,8 @@
  * Time: 12:35 PM
  */
 
+require_once ("../phpScripts/sanitize.php");
+
 class DB {
     private $dbh;
     private static $instance = false;
@@ -168,7 +170,7 @@ class DB {
         }
     }
 
-    // TODO: event functionality
+    // Events functionality
     public function addEvent($data) {
         try {
             $queryString = "insert into event (name, datestart, dateend, numberallowed, venue) values (:name, :datestart, :dateend, :numberallowed, :venue)";
@@ -189,34 +191,154 @@ class DB {
         }
     }
 
-    public function editEvent() {
+    public function editEvent($data) {
+        try {
+            $queryString = "update event set ";
+            $executeParams = [];
 
+            foreach($data as $field) {
+                switch($field) {
+                    case "editEventName":
+                        $queryString .= "name = :name,";
+                        $executeParams["name"] = $_POST[$field];
+                        break;
+                    case "editEventStartDate":
+                        $queryString .= "datestart = :datestart,";
+                        $executeParams["datestart"] = $_POST[$field];
+                        break;
+                    case "editEventEndDate":
+                        $queryString .= "dateend = :dateend,";
+                        $executeParams["dateend"] = $_POST[$field];
+                        break;
+                    case "editEventMaxCap":
+                        $queryString .= "numberallowed = :numberallowed,";
+                        $executeParams["numberallowed"] = $_POST[$field];
+                        break;
+                    case "editAssocVenue":
+                        $queryString .= "venue = :venue,";
+                        $executeParams["venue"] = $_POST[$field];
+                        break;
+                }
+            }
+
+            $queryString = rtrim($queryString, ",");
+
+            $queryString .= " where idevent = :id";
+            $executeParams['id'] = intval($_POST['editEventID']);
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute($executeParams);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
     }
 
-    public function deleteEvent() {
-
+    public function deleteEvent($data) {
+        try {
+            $queryString = "delete from event where name = :name";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(['name'=>$data[0]]);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
     public function viewAllEvents() {
-
+        try {
+            $data = [];
+            $queryString = "select * from event";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute();
+            while($row = $stmt->fetch()) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
 
     // TODO: venue functionality
-    public function addVenue() {
-
+    public function addVenue($name, $capacity) {
+        try {
+            $queryString = "insert into venue (name, capacity) values (:name,:capacity)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "name"=>$name,
+                    "capacity"=>$capacity
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
-    public function editVenue() {
+    public function editVenue($data) {
+        try {
+            $queryString = "update venue set ";
+            $executeParams = [];
 
+            foreach($data as $field) {
+                switch($field) {
+                    case "editVenueName":
+                        $queryString .= "name = :name,";
+                        $executeParams["name"] = $_POST[$field];
+                        var_dump($_POST[$field]);
+                        break;
+                    case "editVenueMaxCap":
+                        $queryString .= "capacity = :capacity,";
+                        $executeParams["capacity"] = $_POST[$field];
+                        break;
+                }
+            }
+
+            $queryString = rtrim($queryString, ",");
+            $queryString .= " where idvenue = :id";
+            $executeParams['id'] = intval($_POST['venueID']);
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute($executeParams);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
     }
 
-    public function deleteVenue() {
-
+    public function deleteVenue($data) {
+        try {
+            $queryString = "delete from venue where name = :name";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(['name'=>$data[0]]);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
     public function viewAllVenues() {
+        $data = [];
 
+        $queryString = "select * from venue";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
     }
 
     // TODO: session functionality

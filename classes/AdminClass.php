@@ -18,6 +18,7 @@ class AdminClass {
         $this->db = DB::getInstance();
     }
 
+    // user functions
     function addUser($data) {
         if(count($data) === 3) {
             $name = $data[0];
@@ -44,9 +45,6 @@ class AdminClass {
 
             $this->db->addUser($name, $password, $role);
         }
-        else {
-            return false;
-        }
     }
 
     function getUserByName($data) {
@@ -71,7 +69,39 @@ class AdminClass {
         return $recordsDeleted;
     }
 
+    // event functions
     function addEvent($data) {
         return $this->db->addEvent($data);
+    }
+
+    function editEvent($data) {
+        return $this->db->editEvent($data);
+    }
+
+    function deleteEvent($data) {
+        return $this->db->deleteEvent($data);
+    }
+
+    function viewAllEvents() {
+        return $this->db->viewAllEvents();
+    }
+
+    // venue functions
+    function addVenue($data) {
+        $name = $data[0];
+        $cap = $data[1];
+        return $this->db->addVenue($name, $cap);
+    }
+
+    function editVenue($data) {
+        return $this->db->editVenue($data);
+    }
+
+    function deleteVenue($data) {
+        return $this->db->deleteVenue($data);
+    }
+
+    function viewAllVenues() {
+        return $this->db->viewAllVenues();
     }
 } // end of class
