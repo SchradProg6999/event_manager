@@ -41,6 +41,7 @@
                 if(isset($_POST['username']) && isset($_POST['password'])) {
                     if($loginStatus === false) {
                         echo "Invalid Username or Password";
+                        echo "<audio controls loop autoplay><source src='../assets/audio/magic_word.ogg' type='audio/mpeg'></audio>";
                     }
                 }
                 ?>
@@ -51,6 +52,15 @@
                     <label class="label-inline">Password: </label><input type="password" value="testing" name="password"><br>
                     <input type="submit" name="submit">
                 </form> </div>
+        </div>
+        <div class='col-md-12 login-error'>
+            <?php
+            if(isset($_POST['username']) && isset($_POST['password'])) {
+                if($loginStatus === false) {
+                    echo "<image src='https://media.giphy.com/media/5ftsmLIqktHQA/giphy.gif'>";
+                }
+            }
+            ?>
         </div>
     </div>
 </body>
