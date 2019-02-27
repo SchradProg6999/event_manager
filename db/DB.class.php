@@ -296,7 +296,6 @@ class DB {
                     case "editVenueName":
                         $queryString .= "name = :name,";
                         $executeParams["name"] = $_POST[$field];
-                        var_dump($_POST[$field]);
                         break;
                     case "editVenueMaxCap":
                         $queryString .= "capacity = :capacity,";
@@ -344,20 +343,92 @@ class DB {
     }
 
     // TODO: session functionality
-    public function addSession() {
-
+    public function addSession($data) {
+        try {
+            $queryString = "insert into session (name, numberallowed, event, startdate, enddate) values (:name, :numberallowed, :event, :startdate, :enddate)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "name"=> $data[0],
+                    "numberallowed"=>$data[1],
+                    "event"=>$data[2],
+                    "startdate"=> $data[3],
+                    "enddate"=>$data[4]
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
     }
 
-    public function editSession() {
+    public function editSession($data) {
+        try {
+            $queryString = "update session set ";
+            $executeParams = [];
 
+            foreach($data as $field) {
+                switch($field) {
+                    case "editSessionName":
+                        $queryString .= "name = :name,";
+                        $executeParams["name"] = $_POST[$field];
+                        break;
+                    case "editSessionMaxCap":
+                        $queryString .= "numberallowed = :numberallowed,";
+                        $executeParams["numberallowed"] = $_POST[$field];
+                        break;
+                    case "editSessionEvent":
+                        $queryString .= "event = :event,";
+                        $executeParams["event"] = $_POST[$field];
+                        break;
+                    case "editSessionStartDate":
+                        $queryString .= "startdate = :startdate,";
+                        $executeParams["startdate"] = $_POST[$field];
+                        break;
+                    case "editSessionEndDate":
+                        $queryString .= "enddate = :enddate,";
+                        $executeParams["enddate"] = $_POST[$field];
+                        break;
+                }
+            }
+
+            $queryString = rtrim($queryString, ",");
+            $queryString .= " where idsession = :id";
+            $executeParams['id'] = intval($_POST['sessionID']);
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute($executeParams);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
     }
 
-    public function deleteSession() {
-
+    public function deleteSession($data) {
+        try {
+            $queryString = "delete from session where name = :name";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(['name'=>$data[0]]);
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
     }
 
     public function viewAllSessions() {
+        $data = [];
 
+        $queryString = "select * from session";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
     }
 
 } // end of class

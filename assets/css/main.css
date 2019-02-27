@@ -4,6 +4,8 @@
 
 .admin-block-info {
     margin-bottom: 20px;
+    display: inline-block;
+    margin-right: 30px;
 }
 
 .admin-control-header {

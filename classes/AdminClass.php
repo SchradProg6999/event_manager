@@ -104,4 +104,21 @@ class AdminClass {
     function viewAllVenues() {
         return $this->db->viewAllVenues();
     }
+
+    // session functions
+    function addSession($data) {
+        return $this->db->addSession($data);
+    }
+
+    function editSession($data) {
+        return $this->db->editSession($data);
+    }
+
+    function deleteSession($data) {
+        return $this->db->deleteSession($data);
+    }
+
+    function viewAllSessions() {
+        return $this->db->viewAllSessions();
+    }
 } // end of class
