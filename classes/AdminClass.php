@@ -43,7 +43,7 @@ class AdminClass {
                     break;
             }
 
-            $this->db->addUser($name, $password, $role);
+            return $this->db->addUser($name, $password, $role);
         }
     }
 
@@ -59,9 +59,7 @@ class AdminClass {
     }
 
     function editUser($data) {
-        $hashedPass = hash('sha256', $data[2]);
-        $numRowsEffected = $this->db->editUser($data[0], $data[1], $hashedPass, $data[3]);
-        return $numRowsEffected;
+        return $this->db->editUser($data);
     }
 
     function deleteUser($data) {

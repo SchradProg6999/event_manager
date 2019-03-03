@@ -65,8 +65,7 @@ class DB {
                 break;
             case '2':
                 $_SESSION['event_manager'] = true;
-                // header('Location: admin.php')
-                echo 'event manager permissions';
+                header('Location: admin.php');
                 break;
             case '3':
                 // regular user
@@ -99,42 +98,33 @@ class DB {
         }
     }
 
-    public function editUser($id, $name, $password, $role) {
+    public function editUser($data) {
         try {
+            $queryString = "update attendee set ";
 
-            $queryString = "update attendee set name = :name, password = :password, role = :role where idattendee = :id";
+            foreach($data as $field) {
+                switch($field) {
+                    case "editUsername":
+                        $queryString .= "name = :name,";
+                        $executeParams["name"] = $_POST[$field];
+                        break;
+                    case "editUserPassword":
+                        $queryString .= "password = :password,";
+                        $executeParams["password"] = hash('sha256', $_POST[$field]);
+                        break;
+                    case "editUserRole":
+                        $queryString .= "role = :role,";
+                        $executeParams["role"] = $_POST[$field];
+                        break;
+                }
+            }
 
+            $queryString = rtrim($queryString, ",");
+            $queryString .= " where idattendee = :id";
+            $executeParams['id'] = intval($_POST['editUserID']);
             $stmt = $this->dbh->prepare($queryString);
-            $stmt->execute(
-                [
-                    "id" => $id,
-                    "name" => $name,
-                    "password" => $password,
-                    "role" => $role
-                ]
-            );
+            $stmt->execute($executeParams);
             return $stmt->rowCount();
-
-            // user only put in an id so dont even try the query
-//            if(count($fields) == 1) {
-//                exit();
-//            }
-
-//            foreach($fields as $field) {
-//                switch($field) {
-//                    case "name":
-//                        $queryString .= "name = :name,";
-//                        break;
-//                    case "password":
-//                        $queryString .= "password = :password,";
-//                        break;
-//                    case "role":
-//                        $queryString .= "role = :role";
-//                        break;
-//                }
-//            }
-            //$queryString .= "where idattendee = :id";
-
         }
         catch(PDOException $e) {
             echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
@@ -226,6 +216,7 @@ class DB {
             $queryString = rtrim($queryString, ",");
 
             $queryString .= " where idevent = :id";
+            var_dump($queryString);
             $executeParams['id'] = intval($_POST['editEventID']);
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute($executeParams);
@@ -306,7 +297,7 @@ class DB {
 
             $queryString = rtrim($queryString, ",");
             $queryString .= " where idvenue = :id";
-            $executeParams['id'] = intval($_POST['venueID']);
+            $executeParams['id'] = intval($_POST['editVenueID']);
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute($executeParams);
             return $stmt->rowCount();
@@ -395,7 +386,7 @@ class DB {
 
             $queryString = rtrim($queryString, ",");
             $queryString .= " where idsession = :id";
-            $executeParams['id'] = intval($_POST['sessionID']);
+            $executeParams['id'] = intval($_POST['editSessionID']);
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute($executeParams);
             return $stmt->rowCount();
@@ -422,6 +413,101 @@ class DB {
         $data = [];
 
         $queryString = "select * from session";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    // getting column names
+    public function getAttendeeTableColumns() {
+        $data = [];
+
+        $queryString = "select column_name from information_schema.columns where table_schema = 'jas6531' and table_name = 'attendee'";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function getEventTableColumns() {
+        $data = [];
+
+        $queryString = "select column_name from information_schema.columns where table_schema = 'jas6531' and table_name = 'event'";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function getSessionTableColumns() {
+        $data = [];
+
+        $queryString = "select column_name from information_schema.columns where table_schema = 'jas6531' and table_name = 'session'";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function getVenueTableColumns() {
+        $data = [];
+
+        $queryString = "select column_name from information_schema.columns where table_schema = 'jas6531' and table_name = 'venue'";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+
+    // event manager functions
+
+    public function viewAllManagedAttendees() {
+        $data = [];
+
+        $queryString = "select * from attendee";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function viewAllManagedEvents() {
+        $data = [];
+
+        $queryString = "select * from events";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
+    public function viewAllManagedSession() {
+        $data = [];
+
+        $queryString = "select * from sessions";
         $stmt = $this->dbh->prepare($queryString);
         $stmt->execute();
 
