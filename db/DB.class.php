@@ -494,7 +494,7 @@ class DB {
     public function viewAllManagedEvents() {
         $data = [];
 
-        $queryString = "select * from events";
+        $queryString = "select * from event";
         $stmt = $this->dbh->prepare($queryString);
         $stmt->execute();
 
@@ -504,10 +504,10 @@ class DB {
         return $data;
     }
 
-    public function viewAllManagedSession() {
+    public function viewAllManagedSessions() {
         $data = [];
 
-        $queryString = "select * from sessions";
+        $queryString = "select * from session";
         $stmt = $this->dbh->prepare($queryString);
         $stmt->execute();
 

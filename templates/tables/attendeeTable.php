@@ -1,8 +1,8 @@
 <div class="col-md-8 main-information-table-wrapper">
     <table border="1" class="main-table-info" id="main-table-info">
         <?php
-        var_dump($GLOBALS['event_manager']);
-
+            // TODO: this is for some reason null even though it is included -> var_dump($event_manager);
+        var_dump($event_manager);
         if(isset($GLOBALS['event_manager']) && !empty($GLOBALS['event_manager'])) {
                 $GLOBALS['event_manager']->renderAttendeeListAndOptions();
             }
@@ -11,9 +11,9 @@
 </div>
 <hr class="col-md-8">
 <div class="col-md-8 data-controls">
-    <button onclick="replaceData('../templates/forms/addAttendeeForm.php', 'dynamic-form')">Add Attendee</button>
-    <button onclick="replaceData('../templates/forms/editAttendeeForm.php', 'dynamic-form')">Edit Attendee</button>
-    <button onclick="replaceData('../templates/forms/deleteAttendeeForm.php', 'dynamic-form')">Delete Attendee</button>
+    <button onclick="replaceData('../templates/forms/attendeeForms/addAttendeeForm.php', 'dynamic-form')">Add Attendee</button>
+    <button onclick="replaceData('../templates/forms/attendeeForms/editAttendeeForm.php', 'dynamic-form')">Edit Attendee</button>
+    <button onclick="replaceData('../templates/forms/attendeeForms/deleteAttendeeForm.php', 'dynamic-form')">Delete Attendee</button>
 </div>
 <div class="col-md-8 dynamic-form">
     <form action="" method="post">

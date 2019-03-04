@@ -23,7 +23,7 @@
     }
     else if(isset($_SESSION['event_manager']) && $_SESSION['event_manager'] === true) {
         $title = "Admin (Event Manager)";
-        $GLOBALS['event_manager'] = new EventManagerClass($_SESSION['username']);
+        $event_manager = new EventManagerClass($_SESSION['username']);
         require_once ('../templates/globalNav/header.php');
         require_once ('../event_manager/eventManagerSanitization.php');
         require_once('../event_manager/eventManagerHTML.php');
