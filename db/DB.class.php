@@ -5,8 +5,7 @@
  * Date: 2/23/2019
  * Time: 12:35 PM
  */
-
-require_once ("../phpScripts/sanitize.php");
+require_once (dirname(__FILE__) . "/../phpScripts/sanitize.php");
 
 class DB {
     private $dbh;
@@ -60,11 +59,11 @@ class DB {
         // check role for admin permissions
         switch($role){
             case '1':
-                $_SESSION['admin'] = true;
+                $_SESSION['admin_loggedin'] = true;
                 header('Location: admin.php');
                 break;
             case '2':
-                $_SESSION['event_manager'] = true;
+                $_SESSION['event_manager_loggedin'] = true;
                 header('Location: admin.php');
                 break;
             case '3':

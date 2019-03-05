@@ -6,7 +6,7 @@
  * Time: 5:18 PM
  */
 
-require_once ('../db/DB.class.php');
+require_once (dirname(__FILE__) . '/../db/DB.class.php');
 
 class EventManagerClass {
 

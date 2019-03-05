@@ -14,16 +14,16 @@
     session_name('login');
     session_start();
 
-    if(isset($_SESSION['admin']) && $_SESSION['admin'] === true) {
+    if(isset($_SESSION['admin_loggedin']) && $_SESSION['admin_loggedin'] === true) {
         $title = "Admin (admin)";
         $admin = new AdminClass($_SESSION['username']);
         require_once ('../templates/globalNav/header.php');
         require_once ('../admin/adminSanitization.php');
         require_once('../admin/adminHTML.php');
     }
-    else if(isset($_SESSION['event_manager']) && $_SESSION['event_manager'] === true) {
+    else if(isset($_SESSION['event_manager_loggedin']) && $_SESSION['event_manager_loggedin'] === true) {
         $title = "Admin (Event Manager)";
-        $event_manager = new EventManagerClass($_SESSION['username']);
+        $_SESSION['event_manager'] = $_SESSION['username'];
         require_once ('../templates/globalNav/header.php');
         require_once ('../event_manager/eventManagerSanitization.php');
         require_once('../event_manager/eventManagerHTML.php');
