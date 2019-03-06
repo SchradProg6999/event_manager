@@ -161,6 +161,23 @@ class DB {
         }
     }
 
+    public function getAllUsers() {
+        try {
+            $data = [];
+            $queryString = "select * from attendee";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute();
+            while($row = $stmt->fetch()) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        catch(PDOException $e) {
+            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
+            die();
+        }
+    }
+
     // Events functionality
     public function addEvent($data) {
         try {
@@ -308,9 +325,9 @@ class DB {
 
     public function deleteVenue($data) {
         try {
-            $queryString = "delete from venue where name = :name";
+            $queryString = "delete from venue where idvenue = :id";
             $stmt = $this->dbh->prepare($queryString);
-            $stmt->execute(['name'=>$data[0]]);
+            $stmt->execute(['id'=>$data[0]]);
             return $stmt->rowCount();
         }
         catch(PDOException $e) {

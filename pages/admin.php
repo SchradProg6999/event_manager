@@ -18,7 +18,6 @@
         $title = "Admin (Admin)";
         $_SESSION['admin'] = $_SESSION['username'];
         require_once ('../templates/globalNav/header.php');
-        require_once ('../admin/adminSanitization.php');
         require_once('../admin/adminHTML.php');
     }
     else if(isset($_SESSION['event_manager_loggedin']) && $_SESSION['event_manager_loggedin'] === true) {

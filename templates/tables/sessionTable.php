@@ -2,13 +2,19 @@
     <div class="col-md-8 main-information-table-wrapper">
         <table border="1" class="main-table-info" id="main-table-info">
             <?php
-                require_once(dirname(__FILE__) . '/../../classes/EventManagerClass.php');
                 session_name('login');
                 session_start();
                 if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {
+                    require_once(dirname(__FILE__) . '/../../classes/EventManagerClass.php');
                     $event_manager = new EventManagerClass($_SESSION['event_manager']);
                     require_once (dirname(__FILE__) . '/../../event_manager/eventManagerSanitization.php');
                     $event_manager->renderSessionListAndOptions();
+                }
+                else{
+                    require_once(dirname(__FILE__) . '/../../classes/AdminClass.php');
+                    $admin = new AdminClass($_SESSION['admin']);
+                    require_once (dirname(__FILE__) . '/../../admin/adminSanitization.php');
+                    $admin->renderSessionListAndOptions();
                 }
             ?>
         </table>
@@ -17,9 +23,18 @@
 </div>
 <hr class="col-md-8">
 <div class="col-md-8 data-controls">
-    <button onclick="replaceData('../templates/forms/sessionForms/addSessionForm.php', 'dynamic-form')">Add Session</button>
-    <button onclick="replaceData('../templates/forms/sessionForms/editSessionForm.php', 'dynamic-form')">Edit Session</button>
-    <button onclick="replaceData('../templates/forms/sessionForms/deleteSessionForm.php', 'dynamic-form')">Delete Session</button>
+    <?php
+        if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {
+            echo "<button onclick=replaceData('../templates/forms/sessionForms/addSessionForm.php'," . "'dynamic-form')>Add Session</button>";
+            echo "<button onclick=replaceData('../templates/forms/sessionForms/editSessionForm.php'," . "'dynamic-form')>Edit Session</button>";
+            echo "<button onclick=replaceData('../templates/forms/sessionForms/deleteSessionForm.php'," . "'dynamic-form')>Delete Session</button>";
+        }
+        else {
+            echo "<button onclick=replaceData('../templates/forms/adminForms/sessionForms/addSessionForm.php'," . "'dynamic-form')>Add Session</button>";
+            echo "<button onclick=replaceData('../templates/forms/adminForms/sessionForms/editSessionForm.php'," . "'dynamic-form')>Edit Session</button>";
+            echo "<button onclick=replaceData('../templates/forms/adminForms/sessionForms/deleteSessionForm.php'," . "'dynamic-form')>Delete Session</button>";
+        }
+    ?>
 </div>
 <div class="col-md-8 dynamic-form">
     <form class="data-form" action="" method="post">

@@ -38,7 +38,7 @@ class EventManagerClass {
         return $this->db->getEventTableColumns();
     }
 
-    // events data
+    // sessions data
     function getAllSessions() {
         $records = $this->db->viewAllManagedSessions();
         return $records;

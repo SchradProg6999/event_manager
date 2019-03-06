@@ -2,13 +2,19 @@
     <div class="col-md-8 main-information-table-wrapper">
         <table border="1" class="main-table-info" id="main-table-info">
             <?php
-                require_once(dirname(__FILE__) . '/../../classes/EventManagerClass.php');
-                require_once (dirname(__FILE__) . '/../../event_manager/eventManagerSanitization.php');
                 session_name('login');
                 session_start();
                 if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {
+                    require_once(dirname(__FILE__) . '/../../classes/EventManagerClass.php');
                     $event_manager = new EventManagerClass($_SESSION['event_manager']);
+                    require_once (dirname(__FILE__) . '/../../event_manager/eventManagerSanitization.php');
                     $event_manager->renderEventListAndOptions();
+                }
+                else{
+                    require_once(dirname(__FILE__) . '/../../classes/AdminClass.php');
+                    $admin = new AdminClass($_SESSION['admin']);
+                    require_once (dirname(__FILE__) . '/../../admin/adminSanitization.php');
+                    $admin->renderEventListAndOptions();
                 }
             ?>
         </table>
@@ -17,9 +23,18 @@
 </div>
 <hr class="col-md-8">
 <div class="col-md-8 data-controls">
-    <button onclick="replaceData('../templates/forms/eventForms/addEventForm.php', 'dynamic-form')">Add Event</button>
-    <button onclick="replaceData('../templates/forms/eventForms/editEventForm.php', 'dynamic-form')">Edit Event</button>
-    <button onclick="replaceData('../templates/forms/eventForms/deleteEventForm.php', 'dynamic-form')">Delete Event</button>
+    <?php
+        if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {
+            echo "<button onclick=replaceData('../templates/forms/eventForms/addEventForm.php'," . "'dynamic-form')>Add Event</button>";
+            echo "<button onclick=replaceData('../templates/forms/eventForms/editEventForm.php'," . "'dynamic-form')>Edit Event</button>";
+            echo "<button onclick=replaceData('../templates/forms/eventForms/deleteEventForm.php'," . "'dynamic-form')>Delete Event</button>";
+        }
+        else {
+            echo "<button onclick=replaceData('../templates/forms/adminForms/eventForms/addEventForm.php'," . "'dynamic-form')>Add Event</button>";
+            echo "<button onclick=replaceData('../templates/forms/adminForms/eventForms/editEventForm.php'," . "'dynamic-form')>Edit Event</button>";
+            echo "<button onclick=replaceData('../templates/forms/adminForms/eventForms/deleteEventForm.php'," . "'dynamic-form')>Delete Event</button>";
+        }
+    ?>
 </div>
 <div class="col-md-8 dynamic-form">
     <form class="data-form" action="" method="post">

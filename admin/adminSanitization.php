@@ -6,7 +6,7 @@
  * Time: 11:30 AM
  */
 
-require_once ('../phpScripts/sanitize.php');
+require_once (dirname(__FILE__) . '/../phpScripts/sanitize.php');
 
 $recordsFound = [];
 $recordsDeleted = "";
@@ -168,7 +168,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     // delete venue
     if(isset($_POST['deleteVenue'])) {
         $dirtyData = [];
-        $dirtyData[] = $_POST['deleteVenueName'];
+        if(isset($_POST['deleteVenueID']) && !empty($_POST['deleteVenueID']) && is_numeric($_POST['deleteVenueID'])) {
+            $dirtyData[] = $_POST['deleteVenueID'];
+        }
+        else {
+            return $venueStatus = "The ID is required";
+        }
+
         $cleanedData = sanitize($dirtyData);
         $venueDeleteStatus = $admin->deleteVenue($cleanedData);
     }

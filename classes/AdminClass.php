@@ -6,7 +6,7 @@
  * Time: 1:54 PM
  */
 
-require_once ('../db/DB.class.php');
+require_once (dirname(__FILE__) . '/../db/DB.class.php');
 
 class AdminClass {
 
@@ -17,6 +17,70 @@ class AdminClass {
         $this->username = $name;
         $this->db = DB::getInstance();
     }
+
+
+
+    // getting column name functions
+    function getAttendeeTableColumns() {
+        return $this->db->getAttendeeTableColumns();
+    }
+
+    function getEventTableColumns() {
+        return $this->db->getEventTableColumns();
+    }
+
+    function getSessionTableColumns() {
+        return $this->db->getSessionTableColumns();
+    }
+
+    function getVenueTableColumns() {
+        return $this->db->getVenueTableColumns();
+    }
+
+
+
+    // rendering data functions
+    function renderAttendeeListAndOptions() {
+        foreach($this->getAttendeeTableColumns() as $column => $columnName) {
+            if($columnName['column_name'] != 'password') {
+                echo "<th>$columnName[column_name]</th>";
+            }
+        }
+        foreach($this->getAllUsers() as $attendee => $attendeeInfo) {
+            echo "<tr><td>$attendeeInfo[idattendee]</td><td>$attendeeInfo[name]</td><td>$attendeeInfo[role]</td></tr>";
+        }
+    }
+
+
+    function renderEventListAndOptions() {
+        foreach($this->getEventTableColumns() as $column => $columnName) {
+            echo "<th>$columnName[column_name]</th>";
+        }
+        foreach($this->viewAllEvents() as $event => $eventInfo) {
+            echo "<tr><td>$eventInfo[idevent]</td><td>$eventInfo[name]</td><td>$eventInfo[datestart]</td><td>$eventInfo[dateend]</td><td>$eventInfo[numberallowed]</td><td>$eventInfo[venue]</td></tr>";
+        }
+    }
+
+
+    function renderSessionListAndOptions() {
+        foreach($this->getSessionTableColumns() as $column => $columnName) {
+            echo "<th>$columnName[column_name]</th>";
+        }
+        foreach($this->viewAllSessions() as $session => $sessionInfo) {
+            echo "<tr><td>$sessionInfo[idsession]</td><td>$sessionInfo[name]</td><td>$sessionInfo[numberallowed]</td><td>$sessionInfo[event]</td><td>$sessionInfo[startdate]</td><td>$sessionInfo[enddate]</td></tr>";
+        }
+    }
+
+    function renderVenueListAndOptions() {
+        foreach($this->getVenueTableColumns() as $column => $columnName) {
+            echo "<th>$columnName[column_name]</th>";
+        }
+        foreach($this->viewAllVenues() as $venue=> $venueInfo) {
+            echo "<tr><td>$venueInfo[idvenue]</td><td>$venueInfo[name]</td><td>$venueInfo[capacity]</td></tr>";
+        }
+    }
+
+
 
     // user functions
     function addUser($data) {
@@ -65,6 +129,10 @@ class AdminClass {
     function deleteUser($data) {
         $recordsDeleted = $this->db->deleteUser($data[0]);
         return $recordsDeleted;
+    }
+
+    function getAllUsers() {
+        return $this->db->getAllUsers();
     }
 
     // event functions
@@ -120,12 +188,4 @@ class AdminClass {
         return $this->db->viewAllSessions();
     }
 
-    function renderEventListAndOptions() {
-        foreach($this->getEventTableColumns() as $column => $columnName) {
-            echo "<th>$columnName[column_name]</th>";
-        }
-        foreach($this->getAllEvents() as $event => $eventInfo) {
-            echo "<tr><td>$eventInfo[idevent]</td><td>$eventInfo[name]</td><td>$eventInfo[datestart]</td><td>$eventInfo[dateend]</td><td>$eventInfo[numberallowed]</td><td>$eventInfo[venue]</td></tr>";
-        }
-    }
 } // end of class

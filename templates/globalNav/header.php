@@ -34,6 +34,13 @@
           <li class="nav-item">
             <a class="nav-link js-scroll-trigger" href="registrations.php">Registrations</a>
           </li>
+            <?php
+                if(isset($_SESSION['event_manager_loggedin']) && $_SESSION['event_manager_loggedin'] === true || isset($_SESSION['admin_loggedin']) && $_SESSION['admin_loggedin'] === true) {
+                    echo "<li class='nav-item'>
+                                <a class='nav-link js-scroll-trigger' href='admin.php'>Admin</a>
+                               </li>";
+                }
+            ?>
             <li class="nav-item">
                 <a class="nav-link js-scroll-trigger" href="../phpScripts/logout.php">Logout</a>
             </li>

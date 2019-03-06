@@ -96,6 +96,10 @@
     margin-bottom: 20px;
 }
 
+button {
+    margin-right: 10px;
+}
+
 audio {
     display: none;
 }
