@@ -80,4 +80,49 @@ class EventManagerClass {
             echo "<tr><td>$sessionInfo[idsession]</td><td>$sessionInfo[name]</td><td>$sessionInfo[numberallowed]</td><td>$sessionInfo[event]</td><td>$sessionInfo[startdate]</td><td>$sessionInfo[enddate]</td></tr>";
         }
     }
+
+
+
+    // attendee functions
+    function addUserToEvent($data) {
+        return null;
+    }
+
+    function editUserEvent($data) {
+        return null;
+    }
+
+    function deleteUserEvent($data) {
+        return null;
+    }
+
+
+
+    // event functions
+    function addEvent($data) {
+        return null;
+    }
+
+    function editEvent($data) {
+        return null;
+    }
+
+    function deleteEvent($data) {
+        return null;
+    }
+
+
+
+    // session functions
+    function addSession($data) {
+        return null;
+    }
+
+    function editSession($data) {
+        return null;
+    }
+
+    function deleteSession($data) {
+        return null;
+    }
 }

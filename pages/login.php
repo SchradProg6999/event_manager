@@ -47,11 +47,12 @@
                 ?>
             </div>
             <div class="col-md-12 login-form">
-                <form action="" method="post">
+                <form class="data-form" action="" method="post">
                     <label class="label-inline">Username: </label><input type="text" name="username"><br>
                     <label class="label-inline">Password: </label><input type="password" value="testing" name="password"><br>
-                    <input type="submit" name="submit">
-                </form> </div>
+                    <input class="form-data-submit" type="submit" name="submit" value="Login">
+                </form>
+            </div>
         </div>
         <div class='col-md-12 login-error'>
             <?php

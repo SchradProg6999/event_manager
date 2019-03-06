@@ -87,6 +87,15 @@
     width: 100%;
 }
 
+.navbar {
+    /*display: none;*/
+}
+
+.events-page-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 audio {
     display: none;
 }

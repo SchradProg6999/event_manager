@@ -15,8 +15,8 @@
     session_start();
 
     if(isset($_SESSION['admin_loggedin']) && $_SESSION['admin_loggedin'] === true) {
-        $title = "Admin (admin)";
-        $admin = new AdminClass($_SESSION['username']);
+        $title = "Admin (Admin)";
+        $_SESSION['admin'] = $_SESSION['username'];
         require_once ('../templates/globalNav/header.php');
         require_once ('../admin/adminSanitization.php');
         require_once('../admin/adminHTML.php');
@@ -25,11 +25,15 @@
         $title = "Admin (Event Manager)";
         $_SESSION['event_manager'] = $_SESSION['username'];
         require_once ('../templates/globalNav/header.php');
-        require_once ('../event_manager/eventManagerSanitization.php');
         require_once('../event_manager/eventManagerHTML.php');
     }
     else { // user tried to directly access admin page without logging in... or it's just a burglar trying to hack our data!
         $_SESSION['redirected'] = true;
-        header('Location: login.php');
+        if($_SESSION['attendee_loggedin'] === true) {
+            header('Location: events.php');
+        }
+        else {
+            header('Location: login.php');
+        }
     }
 ?>

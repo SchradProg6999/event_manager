@@ -119,4 +119,13 @@ class AdminClass {
     function viewAllSessions() {
         return $this->db->viewAllSessions();
     }
+
+    function renderEventListAndOptions() {
+        foreach($this->getEventTableColumns() as $column => $columnName) {
+            echo "<th>$columnName[column_name]</th>";
+        }
+        foreach($this->getAllEvents() as $event => $eventInfo) {
+            echo "<tr><td>$eventInfo[idevent]</td><td>$eventInfo[name]</td><td>$eventInfo[datestart]</td><td>$eventInfo[dateend]</td><td>$eventInfo[numberallowed]</td><td>$eventInfo[venue]</td></tr>";
+        }
+    }
 } // end of class

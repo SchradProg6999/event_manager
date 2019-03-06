@@ -1,4 +1,5 @@
 <form class="data-form" action="" method="post">
+    <label class="label-inline">Event ID: </label><input type="text" name="editSessionEventID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$"><br />
     <label class="label-inline">Session ID: </label><input type="text" name="editSessionID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$" required><br />
     <label class="label-inline">Session Name: </label><input type="text" name="editSessionName"><br />
     <label class="label-inline">Max Capacity: </label><input type="text" name="editSessionMaxCap" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$"><br />

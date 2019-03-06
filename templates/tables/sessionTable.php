@@ -7,6 +7,7 @@
                 session_start();
                 if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {
                     $event_manager = new EventManagerClass($_SESSION['event_manager']);
+                    require_once (dirname(__FILE__) . '/../../event_manager/eventManagerSanitization.php');
                     $event_manager->renderSessionListAndOptions();
                 }
             ?>

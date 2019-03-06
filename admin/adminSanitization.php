@@ -121,6 +121,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             $eventEditStatus = $admin->editEvent($editData);
         }
+        else {
+            return $eventStatus = "Check the ID. Must be a number.";
+        }
     }
 
     if(isset($_POST['deleteEvent'])) {
@@ -208,7 +211,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     // delete session
     if(isset($_POST['deleteSession'])) {
         $dirtyData = [];
-        $dirtyData[] = $_POST['deleteSessionName'];
+        $dirtyData[] = $_POST['deleteSessionID'];
         $cleanedData = sanitize($dirtyData);
         $deleteSessionStatus = $admin->deleteSession($cleanedData);
     }

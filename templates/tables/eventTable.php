@@ -3,6 +3,7 @@
         <table border="1" class="main-table-info" id="main-table-info">
             <?php
                 require_once(dirname(__FILE__) . '/../../classes/EventManagerClass.php');
+                require_once (dirname(__FILE__) . '/../../event_manager/eventManagerSanitization.php');
                 session_name('login');
                 session_start();
                 if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {

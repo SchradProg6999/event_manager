@@ -68,12 +68,12 @@ class DB {
                 break;
             case '3':
                 // regular user
-                $_SESSION['AttendeeClass'] = true;
-                //header('Location: events.php');
-                echo 'regular attendee';
+                $_SESSION['attendee_loggedin'] = true;
+                header('Location: events.php');
                 break;
             default:
-                echo 'regular attendee';
+                header('Location: login.php');
+                break;
         }
     }
 
