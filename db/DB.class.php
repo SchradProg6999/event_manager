@@ -150,10 +150,7 @@ class DB {
             $queryString = "select * from attendee where idattendee = :id";
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute(['id'=>(int)$id]);
-            while($row = $stmt->fetch()) {
-                $data[] = $row;
-            }
-            return $data;
+            return $row = $stmt->fetch();
         }
         catch(PDOException $e) {
             echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
@@ -185,11 +182,11 @@ class DB {
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute(
                 [
-                    "name"=> $data[0],
-                    "datestart"=> $data[1],
-                    "dateend"=>$data[2],
-                    "numberallowed"=>$data[3],
-                    "venue"=>$data[4]
+                    "name"=> $data['addEventName'],
+                    "datestart"=> $data['addEventStartDate'],
+                    "dateend"=>$data['addEventEndDate'],
+                    "numberallowed"=>$data['addEventMaxCap'],
+                    "venue"=>$data['addAssocVenue']
                 ]
             );
             return $stmt->rowCount();
@@ -232,7 +229,6 @@ class DB {
             $queryString = rtrim($queryString, ",");
 
             $queryString .= " where idevent = :id";
-            var_dump($queryString);
             $executeParams['id'] = intval($_POST['editEventID']);
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute($executeParams);
@@ -245,13 +241,17 @@ class DB {
 
     public function deleteEvent($data) {
         try {
-            $queryString = "delete from event where name = :name";
+            $queryString = "delete event, session, manager_event, attendee_event, attendee_session from event
+                            join session on session.event = event.idevent
+                            join manager_event on session.event = manager_event.event
+                            join attendee_event on attendee_event.event = manager_event.event
+                            left join attendee_session on attendee_session.session = session.idsession
+                            where event.idevent = :id";
             $stmt = $this->dbh->prepare($queryString);
-            $stmt->execute(['name'=>$data[0]]);
+            $stmt->execute(['id'=>$data['deleteEventID']]);
             return $stmt->rowCount();
         }
         catch(PDOException $e) {
-            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
             die();
         }
     }
@@ -273,8 +273,32 @@ class DB {
         }
     }
 
+    public function getLastEvent() {
+        try {
+            $queryString = "select idevent from event order by idevent desc limit 1";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute();
+            return $row = $stmt->fetch();
+        }
+        catch(PDOException $e) {
+            die();
+        }
+    }
 
-    // TODO: venue functionality
+    public function getEventByID($id) {
+        try {
+            $queryString = "select idevent from event where idevent = :id";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(["id" => $id]);
+            return $row = $stmt->fetch();
+        }
+        catch(PDOException $e) {
+            die();
+        }
+    }
+
+
+
     public function addVenue($name, $capacity) {
         try {
             $queryString = "insert into venue (name, capacity) values (:name,:capacity)";
@@ -325,7 +349,13 @@ class DB {
 
     public function deleteVenue($data) {
         try {
-            $queryString = "delete from venue where idvenue = :id";
+            $queryString = "delete venue, event, session, manager_event, attendee_event, attendee_session from venue 
+                            join event on event.venue = venue.idvenue
+                            join session on session.event = event.idevent
+                            join manager_event on manager_event.event = session.event
+                            join attendee_event on attendee_event.event = manager_event.event
+                            left join attendee_session on attendee_session.session = session.idsession
+                            where idvenue = :id";
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute(['id'=>$data[0]]);
             return $stmt->rowCount();
@@ -356,11 +386,11 @@ class DB {
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute(
                 [
-                    "name"=> $data[0],
-                    "numberallowed"=>$data[1],
-                    "event"=>$data[2],
-                    "startdate"=> $data[3],
-                    "enddate"=>$data[4]
+                    "name"=> $data['addSessionEvent'],
+                    "numberallowed"=>$data['addSessionEventCap'],
+                    "event"=>$data['eventID'],
+                    "startdate"=> $data['addSessionStartDateEvent'],
+                    "enddate"=>$data['addSessionEndDateEvent']
                 ]
             );
             return $stmt->rowCount();
@@ -532,6 +562,49 @@ class DB {
         }
         return $data;
     }
+
+    public function getVenueByID($venueID) {
+        $queryString = "select idvenue from venue where idvenue = :id";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute(["id" => $venueID]);
+        return $stmt->rowCount();
+    }
+
+    public function addAttendeeEventRecord($data) {
+        try {
+            $queryString = "insert into attendee_event(event, attendee, paid) values (:event, :attendee, :paid)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "event" => $data['eventID'],
+                    "attendee" => $data['attendeeID'],
+                    "paid" => $data['paid']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    public function addManagerEventRecord($data) {
+        try {
+            $queryString = "insert into manager_event(event, manager) values (:event, :manager)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "event" => $data['eventID'],
+                    "manager" => $data['managerID']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
 
 } // end of class
 ?>

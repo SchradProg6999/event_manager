@@ -137,7 +137,37 @@ class AdminClass {
 
     // event functions
     function addEvent($data) {
-        return $this->db->addEvent($data);
+        // check if venue is even existing before we make the event
+        // then get the last query of the event table(the one we just created) and use that
+        // to link the session that will be generated automatically after the event is generated.
+
+        $venueFound = $this->db->getVenueByID($data['addAssocVenue']);
+        $adminFound = $this->db->viewUserById($data['addAdminEvent']);
+        $managerFound = $this->db->viewUserById($data['addEventManagerEvent']);
+
+        if($venueFound > 0 && $adminFound['role'] === '1' && $managerFound['role'] === '2') {
+            if($this->db->addEvent($data) > 0) {
+                $eventID = $this->db->getLastEvent();
+
+                $sessionData = ["addSessionEvent" => $data['addSessionEvent'], "addSessionEventCap" => $data['addSessionEventCap'],
+                    "eventID" => $eventID[0], "addSessionStartDateEvent" => $data['addSessionStartDateEvent'],
+                    "addSessionEndDateEvent" => $data['addSessionEndDateEvent']];
+                $sessionStatus = $this->db->addSession($sessionData);
+                if($sessionStatus > 0) {
+                    $adminEventData = ["eventID" => $eventID[0], "attendeeID" => $adminFound['idattendee'], "paid" => 0];
+                    $managerEventData = ["eventID" => $eventID[0], "attendeeID" => $managerFound['idattendee'], "paid" => 0];
+                    $this->db->addAttendeeEventRecord($adminEventData);
+                    $this->db->addAttendeeEventRecord($managerEventData);
+                    $this->db->addManagerEventRecord(["eventID" => $eventID[0], "managerID" => $managerFound['idattendee']]);
+                }
+                else {
+                    return -1;
+                }
+            }
+        }
+        else {
+            return -1;
+        }
     }
 
     function editEvent($data) {
@@ -145,7 +175,12 @@ class AdminClass {
     }
 
     function deleteEvent($data) {
-        return $this->db->deleteEvent($data);
+        // upon deletion of an event, the session needs to be deleted as well as any record that had any reference to
+        // that event in the associative tables
+        if($this->db->deleteEvent($data) > 0) {
+            $this->db->deleteAttendeeSessionRecords($data);
+        }
+
     }
 
     function viewAllEvents() {
@@ -173,7 +208,13 @@ class AdminClass {
 
     // session functions
     function addSession($data) {
-        return $this->db->addSession($data);
+        // must mean the event exists
+        if($this->db->getEventById($data['eventID']) !== false) {
+            return $this->db->addSession($data);
+        }
+        else {
+            return -1;
+        }
     }
 
     function editSession($data) {

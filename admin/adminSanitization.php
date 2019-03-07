@@ -87,31 +87,32 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if(isset($_POST['addEvent'])) {
-        $requiredFields = array('addEventName', 'addEventStartDate', 'addEventEndDate', 'addEventMaxCap', 'addAssocVenue');
+        $requiredFields = array('addEventName', 'addEventStartDate', 'addEventEndDate', 'addEventMaxCap', 'addAssocVenue',
+            'addEventManagerEvent', 'addAdminEvent', 'addSessionEvent', 'addSessionEventCap', 'addSessionStartDateEvent', 'addSessionEndDateEvent');
         $dirtyData = [];
         foreach($requiredFields as $requiredField) {
             if(!isset($_POST[$requiredField]) || empty($_POST[$requiredField])) {
-                exit("Query Could not be performed");
+                return $eventStatus = "One of the required fields is missing";
             }
 
             // for the dates
-            if($requiredField == 'addEventStartDate' || $requiredField == 'addEventEndDate') {
+            if($requiredField == 'addEventStartDate' || $requiredField == 'addEventEndDate' || $requiredField == 'addSessionStartDateEvent' || $requiredField == 'addSessionEndDateEvent') {
                 $newDate = $_POST[$requiredField];
                 $newDate = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $newDate);
-                $dirtyData[] = $newDate;
+                $dirtyData[$requiredField] = $newDate;
             }
             else {
-                $dirtyData[] = $_POST[$requiredField];
+                $dirtyData[$requiredField] = $_POST[$requiredField];
             }
         }
         // sanitize the data
         $cleanedData = sanitize($dirtyData);
 
-        $eventAddStatus = $admin->addEvent($cleanedData);
+        $eventStatus = $admin->addEvent($cleanedData);
     }
 
     if(isset($_POST['editEvent'])) {
-        $possibleFields = ['editEventID', 'editEventName', 'editEventStartDate', 'editEventEndDate', 'editEventMaxCap', 'editAssocVenue'];
+        $possibleFields = ['editEventID', 'editEventName', 'editEventStartDate', 'editEventEndDate', 'editEventMaxCap'];
         $editData = [];
         if(isset($_POST['editEventID']) && !empty($_POST['editEventID'] && is_numeric($_POST['editEventID']))) {
             foreach($possibleFields as $possibleField) {
@@ -119,7 +120,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                     $editData[] = $possibleField;
                 }
             }
-            $eventEditStatus = $admin->editEvent($editData);
+            $eventStatus = $admin->editEvent($editData);
         }
         else {
             return $eventStatus = "Check the ID. Must be a number.";
@@ -128,9 +129,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if(isset($_POST['deleteEvent'])) {
         $dirtyData = [];
-        $dirtyData[] = $_POST['deleteEventName'];
-        $cleanedData = sanitize($dirtyData);
-        $eventsDeleted = $admin->deleteEvent($cleanedData);
+        if(isset($_POST['deleteEventID']) && !empty($_POST['deleteEventID']) && is_numeric($_POST['deleteEventID'])) {
+            $dirtyData['deleteEventID'] = $_POST['deleteEventID'];
+            $cleanedData = sanitize($dirtyData);
+            $eventsDeleted = $admin->deleteEvent($cleanedData);
+        }
+        else {
+            return $eventStatus = "The ID is required";
+        }
     }
 
 
@@ -153,14 +159,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['editVenue'])) {
         $possibleFields = ['venueID', 'editVenueName', 'editVenueMaxCap'];
         $editData = [];
-
-        if(isset($_POST['venueID']) && !empty($_POST['venueID'])) {
+        if(isset($_POST['editVenueID']) && !empty($_POST['editVenueID'])) {
             foreach($possibleFields as $possibleField) {
                 if(!empty($_POST[$possibleField])) {
                     $editData[] = $possibleField;
                 }
             }
-            $editVenueStatus = $admin->editVenue($editData);
+            $venueStatus = $admin->editVenue($editData);
         }
     }
 
@@ -170,28 +175,30 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $dirtyData = [];
         if(isset($_POST['deleteVenueID']) && !empty($_POST['deleteVenueID']) && is_numeric($_POST['deleteVenueID'])) {
             $dirtyData[] = $_POST['deleteVenueID'];
+            $cleanedData = sanitize($dirtyData);
+            $venueDeleteStatus = $admin->deleteVenue($cleanedData);
         }
         else {
             return $venueStatus = "The ID is required";
         }
-
-        $cleanedData = sanitize($dirtyData);
-        $venueDeleteStatus = $admin->deleteVenue($cleanedData);
     }
 
 
     // add session
     if(isset($_POST['addSession'])) {
-        $requiredFields = array('addSessionName', 'addSessionCapacity', 'addAssocEvent', 'addSessionStartDate', 'addSessionEndDate');
+        $requiredFields = array('addSessionEvent', 'addSessionEventCap', 'eventID', 'addSessionStartDateEvent', 'addSessionEndDateEvent');
         $dirtyData = [];
         foreach($requiredFields as $requiredField) {
             if(isset($_POST[$requiredField])) {
-                $dirtyData[] = $_POST[$requiredField];
+                $dirtyData[$requiredField] = $_POST[$requiredField];
+            }
+            else {
+                return $sessionStatus = "One of the required fields is missing";
             }
         }
         // sanitize the data
         $cleanedData = sanitize($dirtyData);
-        $addSessionStatus = $admin->addSession($cleanedData);
+        $sessionStatus = $admin->addSession($cleanedData);
     }
 
 
@@ -206,10 +213,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                     $editData[] = $possibleField;
                 }
             }
-            $editSessionStatus = $admin->editSession($editData);
+            $sessionStatus = $admin->editSession($editData);
         }
         else {
-            $editSessionStatus = "Check the ID. It needs to be a number and not empty.";
+            $sessionStatus = "Check the ID. It needs to be a number and not empty.";
         }
     }
 
@@ -217,9 +224,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     // delete session
     if(isset($_POST['deleteSession'])) {
         $dirtyData = [];
-        $dirtyData[] = $_POST['deleteSessionID'];
-        $cleanedData = sanitize($dirtyData);
-        $deleteSessionStatus = $admin->deleteSession($cleanedData);
+        if(isset($_POST['deleteSessionID']) && !empty($_POST['deleteSessionID']) && is_numeric($_POST['deleteSessionID'])) {
+            $dirtyData[] = $_POST['deleteSessionID'];
+            $cleanedData = sanitize($dirtyData);
+            $sessionStatus = $admin->deleteSession($cleanedData);
+        }
+        else {
+            return $sessionStatus = "The ID is required";
+        }
     }
 
 }

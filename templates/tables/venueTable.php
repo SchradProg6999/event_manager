@@ -7,7 +7,7 @@
             require_once(dirname(__FILE__) . '/../../classes/AdminClass.php');
             $admin = new AdminClass($_SESSION['admin']);
             require_once (dirname(__FILE__) . '/../../admin/adminSanitization.php');
-            $admin->renderAttendeeListAndOptions();
+            $admin->renderVenueListAndOptions();
             ?>
         </table>
     </div>

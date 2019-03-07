@@ -7,7 +7,7 @@
 <div>
     <?php
     if(isset($_POST['editVenue'])) {
-        checkDBRecordStatus($editVenueStatus, 'Venue', 'edit');
+        checkDBRecordStatus($venueStatus, 'Venue', 'edit');
     }
     ?>
 </div>

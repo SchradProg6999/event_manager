@@ -11,7 +11,7 @@
         $cleanedData = [];
 
         foreach($arrayToClean as $key => $dataToClean) {
-            $cleanedData[] = html_entity_decode(strip_tags(trim($dataToClean)));
+            $cleanedData[$key] = html_entity_decode(strip_tags(trim($dataToClean)));
         }
 
         return $cleanedData;

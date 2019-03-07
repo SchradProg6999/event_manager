@@ -37,11 +37,14 @@
     ?>
 </div>
 <div class="col-md-8 dynamic-form">
-    <form class="data-form" action="" method="post">
-        <label class="label-inline">User ID: </label><input type="text" name="addUserID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$" required><br />
-        <label class="label-inline">Event ID: </label><input type="text" name="addEventAssoc" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$" required> <br />
-        <input class="form-data-submit" type="submit" name="addUser" value="Add">
-    </form>
+    <?php
+        if(isset($_SESSION['event_manager']) && !empty($_SESSION['event_manager'])) {
+            require_once (dirname(__FILE__) . "/../forms/attendeeForms/addAttendeeForm.php");
+        }
+        else {
+            require_once (dirname(__FILE__) . "/../forms/adminForms/attendeeForms/addAttendeeForm.php");
+        }
+    ?>
     <div class="form-db-error">
         <?php
             if(isset($_POST['addUser'])) {

@@ -26,21 +26,8 @@ CREATE TABLE IF NOT EXISTS `event` (
   `numberallowed` INT NOT NULL,
   `venue` INT NOT NULL,
   PRIMARY KEY (`idevent`),
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC))
-ENGINE = MyISAM;
-
-CREATE TABLE IF NOT EXISTS `event` (
-  `idevent` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(50) NOT NULL,
-  `datestart` DATETIME NOT NULL,
-  `dateend` DATETIME NOT NULL,
-  `numberallowed` INT NOT NULL,
-  `venue` INT NOT NULL,
-  `manager` INT NOT NULL,
-  PRIMARY KEY (`idevent`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC),
-  INDEX `venue_fk_idx` (`venue` ASC),
-  UNIQUE INDEX `manager_UNIQUE` (`manager` ASC))
+  INDEX `venue_fk_idx` (`venue` ASC))
 ENGINE = MyISAM;
 
 
@@ -76,6 +63,17 @@ ENGINE = MyISAM;
 
 
 -- -----------------------------------------------------
+-- Table `manager_event`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `manager_event` ;
+
+CREATE TABLE IF NOT EXISTS `manager_event` (
+  `event` INT NOT NULL,
+  `manager` INT NOT NULL,
+	PRIMARY KEY (`event`, `manager`))
+ENGINE = MyISAM;
+
+-- -----------------------------------------------------
 -- Table `attendee_event`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `attendee_event` ;
@@ -100,16 +98,17 @@ CREATE TABLE IF NOT EXISTS `attendee_session` (
 ENGINE = MyISAM;
 
 -- -----------------------------------------------------
--- Table `roles`
+-- Table `role`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `roles` ;
+DROP TABLE IF EXISTS `role` ;
 
-CREATE TABLE IF NOT EXISTS `roles` (
-  `idroles` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `role` (
+  `idrole` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`idroles`),
+  PRIMARY KEY (`idrole`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC))
 ENGINE = MyISAM;
 
-INSERT INTO `roles` (`name`) values ('admin'),('event manager'),('attendee');
+INSERT INTO `role` (`name`) values ('admin'),('event manager'),('attendee');
 
