@@ -21,20 +21,20 @@
 </div>
 <div class="col-md-8 dynamic-form">
     <form class="data-form" action="" method="post">
-        <label class="label-inline">User ID: </label><input type="text" name="addUserID" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$" required><br />
-        <label class="label-inline">Event ID: </label><input type="text" name="addEventAssoc" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$" required> <br />
-        <input class="form-data-submit" type="submit" name="addUser" value="Add">
+        <label class="label-inline">Venue Name: </label><input type="text" name="addVenueName" required><br />
+        <label class="label-inline">Max Capacity: </label><input type="text" name="addVenueCapacity" pattern="^(\(?\+?[0-9]*\)?)?[0-9_\- \(\)]*$">
+        <input class="form-data-submit" type="submit" name="addVenue" value="Add">
     </form>
     <div class="form-db-error">
         <?php
         if(isset($_POST['addVenue'])) {
-            checkDBRecordStatus($venueStatus, 'User', 'add');
+            checkDBRecordStatus($venueStatus, 'Venue', 'add');
         }
         if(isset($_POST['editVenue'])) {
-            checkDBRecordStatus($venueStatus, 'User', 'edit');
+            checkDBRecordStatus($venueStatus, 'Venue', 'edit');
         }
         if(isset($_POST['deleteVenue'])) {
-            checkDBRecordStatus($venueStatus, 'User', 'delete');
+            checkDBRecordStatus($venueStatus, 'Venue', 'delete');
         }
         ?>
     </div>

@@ -47,6 +47,8 @@ class DB {
 
         // must have received valid username and password
         if($userInfo[0] != "" && count($userInfo) == 1) {
+            $_SESSION['managerID'] = $userInfo[0]['idattendee'];
+
             $_SESSION['username'] = $username;
             $this->checkRoleAndRedirect($userInfo[0]['role']);
         }
@@ -133,7 +135,11 @@ class DB {
 
     public function deleteUser($id) {
         try {
-            $queryString = "delete from attendee where idattendee = :id";
+            $queryString = "delete attendee, manager_event, attendee_event, attendee_session from attendee 
+                            left join manager_event on manager_event.manager = attendee.idattendee
+                            left join attendee_event on manager_event.manager = attendee_event.attendee
+                            left join attendee_session on attendee_event.attendee = attendee_session.attendee
+                            where idattendee = :id";
             $stmt = $this->dbh->prepare($queryString);
             $stmt->execute(['id'=>$id]);
             return $stmt->rowCount();
@@ -242,9 +248,9 @@ class DB {
     public function deleteEvent($data) {
         try {
             $queryString = "delete event, session, manager_event, attendee_event, attendee_session from event
-                            join session on session.event = event.idevent
-                            join manager_event on session.event = manager_event.event
-                            join attendee_event on attendee_event.event = manager_event.event
+                            left join session on session.event = event.idevent
+                            left join manager_event on session.event = manager_event.event
+                            left join attendee_event on attendee_event.event = manager_event.event
                             left join attendee_session on attendee_session.session = session.idsession
                             where event.idevent = :id";
             $stmt = $this->dbh->prepare($queryString);
@@ -350,10 +356,10 @@ class DB {
     public function deleteVenue($data) {
         try {
             $queryString = "delete venue, event, session, manager_event, attendee_event, attendee_session from venue 
-                            join event on event.venue = venue.idvenue
-                            join session on session.event = event.idevent
-                            join manager_event on manager_event.event = session.event
-                            join attendee_event on attendee_event.event = manager_event.event
+                            left join event on event.venue = venue.idvenue
+                            left join session on session.event = event.idevent
+                            left join manager_event on manager_event.event = session.event
+                            left join attendee_event on attendee_event.event = manager_event.event
                             left join attendee_session on attendee_session.session = session.idsession
                             where idvenue = :id";
             $stmt = $this->dbh->prepare($queryString);
@@ -415,10 +421,6 @@ class DB {
                         $queryString .= "numberallowed = :numberallowed,";
                         $executeParams["numberallowed"] = $_POST[$field];
                         break;
-                    case "editSessionEvent":
-                        $queryString .= "event = :event,";
-                        $executeParams["event"] = $_POST[$field];
-                        break;
                     case "editSessionStartDate":
                         $queryString .= "startdate = :startdate,";
                         $executeParams["startdate"] = $_POST[$field];
@@ -444,13 +446,14 @@ class DB {
 
     public function deleteSession($data) {
         try {
-            $queryString = "delete from session where name = :name";
+            $queryString = "delete session, attendee_session from session
+                            left join attendee_session on attendee_session.session = session.idsession
+                            where idsession = :id";
             $stmt = $this->dbh->prepare($queryString);
-            $stmt->execute(['name'=>$data[0]]);
+            $stmt->execute(['id'=>$data['deleteSessionID']]);
             return $stmt->rowCount();
         }
         catch(PDOException $e) {
-            echo $e->getMessage(); // TODO: send user a notification saying that something went wrong
             die();
         }
     }
@@ -468,7 +471,33 @@ class DB {
         return $data;
     }
 
+    public function getSessionByID($id) {
+        try {
+            $queryString = "select idsession from session where idsession = :id";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(["id" => $id]);
+
+            return $row=$stmt->fetch();
+        }
+        catch(PDOException $e) {
+            die();
+        }
+    }
+
     // getting column names
+    public function getAttendeeEventTableColumns() {
+        $data = [];
+
+        $queryString = "select column_name from information_schema.columns where table_schema = 'jas6531' and table_name = 'attendee_event'";
+        $stmt = $this->dbh->prepare($queryString);
+        $stmt->execute();
+
+        while($row=$stmt->fetch()) {
+            $data[] = $row;
+        }
+        return $data;
+    }
+
     public function getAttendeeTableColumns() {
         $data = [];
 
@@ -524,12 +553,15 @@ class DB {
 
     // event manager functions
 
-    public function viewAllManagedAttendees() {
+    public function viewAllManagedAttendees($managerID) {
         $data = [];
 
-        $queryString = "select * from attendee";
+        $queryString = "select attendee_event.*  from attendee
+                            join manager_event on attendee.idattendee = manager_event.manager
+                            join attendee_event on manager_event.event = attendee_event.event
+                            where attendee.idattendee = :id";
         $stmt = $this->dbh->prepare($queryString);
-        $stmt->execute();
+        $stmt->execute(["id"=>$managerID]);
 
         while($row=$stmt->fetch()) {
             $data[] = $row;
@@ -604,7 +636,5 @@ class DB {
             exit();
         }
     }
-
-
 } // end of class
 ?>

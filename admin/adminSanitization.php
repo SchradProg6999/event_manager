@@ -8,9 +8,6 @@
 
 require_once (dirname(__FILE__) . '/../phpScripts/sanitize.php');
 
-$recordsFound = [];
-$recordsDeleted = "";
-
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     // adding a user
     if(isset($_POST['addUser'])) {
@@ -18,7 +15,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         $dirtyData = [];
         foreach($requiredFields as $requiredField) {
             if(!isset($_POST[$requiredField])) {
-                return $addUserStatus = 'One of the required fields is missing';
+                return $userStatus = 'One of the required fields is missing';
             }
             else {
                 $dirtyData[] = $_POST[$requiredField];
@@ -27,7 +24,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         // sanitize the data
         $cleanedData = sanitize($dirtyData);
 
-        $addUserStatus = $admin->addUser($cleanedData);
+        $userStatus = $admin->addUser($cleanedData);
     }
 
     // editing a user
@@ -53,10 +50,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             // scrub! scrub! scrub! three toads in a tub!
             $cleanedData = sanitize($dirtyData);
-            $editUserStatus = $admin->editUser($cleanedData);
+            $userStatus = $admin->editUser($cleanedData);
         }
         else {
-            return $editUserStatus = "Something went wrong... Please Try Again";
+            return $userStatus = "Something went wrong... Please Try Again";
         }
     }
 
@@ -66,10 +63,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         if(isset($_POST['findUserID']) && !empty($_POST['findUserID']) && is_numeric($_POST['findUserID'])) {
             $dirtyData[] = $_POST['findUserID'];
             $cleanedData = sanitize($dirtyData);
-            $recordsFound = $admin->getUserByName($cleanedData);
+            $userStatus = $admin->getUserByName($cleanedData);
         }
         else {
-            $findUserStatus = "Could not find user";
+            $userStatus = "Could not find user";
         }
     }
 
@@ -77,12 +74,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['deleteUser'])) {
         $dirtyData = [];
         if(isset($_POST['deleteUserByID']) && !empty($_POST['deleteUserByID']) && is_numeric($_POST['deleteUserByID'])) {
-            $dirtyData[] = $_POST['deleteUserByID'];
+            $dirtyData['deleteUserByID'] = $_POST['deleteUserByID'];
             $cleanedData = sanitize($dirtyData);
-            $recordsDeleted = $admin->deleteUser($cleanedData);
+            $userStatus = $admin->deleteUser($cleanedData);
         }
         else {
-            $recordsDeleted = "Record could not be deleted";
+            $userStatus = "Record could not be deleted";
         }
     }
 
@@ -204,13 +201,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // edit session
     if(isset($_POST['editSession'])) {
-        $possibleFields = ['editSessionID', 'editSessionName', 'editSessionMaxCap', 'editSessionEvent', 'editSessionStartDate', 'editSessionEndDate'];
+        $possibleFields = ['editSessionID', 'editSessionName', 'editSessionMaxCap', 'editSessionStartDate', 'editSessionEndDate'];
         $editData = [];
 
         if(isset($_POST['editSessionID']) && !empty($_POST['editSessionID'] && is_numeric($_POST['editSessionID']))) {
             foreach($possibleFields as $possibleField) {
                 if(!empty($_POST[$possibleField])) {
-                    $editData[] = $possibleField;
+                    $editData[$possibleField] = $possibleField;
                 }
             }
             $sessionStatus = $admin->editSession($editData);
@@ -225,7 +222,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['deleteSession'])) {
         $dirtyData = [];
         if(isset($_POST['deleteSessionID']) && !empty($_POST['deleteSessionID']) && is_numeric($_POST['deleteSessionID'])) {
-            $dirtyData[] = $_POST['deleteSessionID'];
+            $dirtyData['deleteSessionID'] = $_POST['deleteSessionID'];
             $cleanedData = sanitize($dirtyData);
             $sessionStatus = $admin->deleteSession($cleanedData);
         }

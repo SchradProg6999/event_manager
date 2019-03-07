@@ -29,7 +29,7 @@
         <div>
             <?php
                 if(isset($_POST['addUser'])) {
-                    checkDBRecordStatus($addUserStatus, 'User', 'add');
+                    checkDBRecordStatus($userStatus, 'User', 'add');
                 }
             ?>
         </div>

@@ -20,8 +20,12 @@ class EventManagerClass {
 
     // attendees data
     function getAllAttendees() {
-        $records = $this->db->viewAllManagedAttendees();
+        $records = $this->db->viewAllManagedAttendees($_SESSION['managerID']);
         return $records;
+    }
+
+    function getAttendeeEventTableColumns() {
+        return $this->db->getAttendeeEventTableColumns();
     }
 
     function getAttendeeTableColumns() {
@@ -51,13 +55,13 @@ class EventManagerClass {
 
     // render functions
     function renderAttendeeListAndOptions() {
-        foreach($this->getAttendeeTableColumns() as $column => $columnName) {
+        foreach($this->getAttendeeEventTableColumns() as $column => $columnName) {
             if($columnName['column_name'] != 'password') {
                 echo "<th>$columnName[column_name]</th>";
             }
         }
         foreach($this->getAllAttendees() as $attendee => $attendeeInfo) {
-            echo "<tr><td>$attendeeInfo[idattendee]</td><td>$attendeeInfo[name]</td><td>$attendeeInfo[role]</td></tr>";
+            echo "<tr><td>$attendeeInfo[event]</td><td>$attendeeInfo[attendee]</td><td>$attendeeInfo[paid]</td></tr>";
         }
     }
 
@@ -85,44 +89,44 @@ class EventManagerClass {
 
     // attendee functions
     function addUserToEvent($data) {
-        return null;
+        var_dump($data);
     }
 
     function editUserEvent($data) {
-        return null;
+        var_dump($data);
     }
 
     function deleteUserEvent($data) {
-        return null;
+        var_dump($data);
     }
 
 
 
     // event functions
     function addEvent($data) {
-        return null;
+        var_dump($data);
     }
 
     function editEvent($data) {
-        return null;
+        var_dump($data);
     }
 
     function deleteEvent($data) {
-        return null;
+        var_dump($data);
     }
 
 
 
     // session functions
     function addSession($data) {
-        return null;
+        var_dump($data);
     }
 
     function editSession($data) {
-        return null;
+        var_dump($data);
     }
 
     function deleteSession($data) {
-        return null;
+        var_dump($data);
     }
 }

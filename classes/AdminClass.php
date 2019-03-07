@@ -127,8 +127,7 @@ class AdminClass {
     }
 
     function deleteUser($data) {
-        $recordsDeleted = $this->db->deleteUser($data[0]);
-        return $recordsDeleted;
+        return $this->db->deleteUser($data['deleteUserByID']);
     }
 
     function getAllUsers() {
@@ -177,10 +176,7 @@ class AdminClass {
     function deleteEvent($data) {
         // upon deletion of an event, the session needs to be deleted as well as any record that had any reference to
         // that event in the associative tables
-        if($this->db->deleteEvent($data) > 0) {
-            $this->db->deleteAttendeeSessionRecords($data);
-        }
-
+        $this->db->deleteEvent($data);
     }
 
     function viewAllEvents() {
@@ -218,7 +214,13 @@ class AdminClass {
     }
 
     function editSession($data) {
-        return $this->db->editSession($data);
+        $sessionFound = $this->db->getSessionByID($_POST[$data['editSessionID']]);
+        if($sessionFound !== false) {
+            return $this->db->editSession($data);
+        }
+        else {
+            return -1;
+        }
     }
 
     function deleteSession($data) {

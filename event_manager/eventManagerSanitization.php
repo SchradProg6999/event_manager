@@ -20,7 +20,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 return $userStatus = 'One of the required fields is missing';
             }
             else {
-                $dirtyData[] = $_POST[$requiredField];
+                $dirtyData[$requiredField] = $_POST[$requiredField];
             }
         }
         // sanitize the data
@@ -36,7 +36,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             if (!isset($_POST[$requiredField]) || empty($_POST[$requiredField])) {
                 return $userStatus = 'One of the required fields is missing';
             } else {
-                $dirtyData[] = $_POST[$requiredField];
+                $dirtyData[$requiredField] = $_POST[$requiredField];
             }
         }
         // sanitize the data
@@ -55,7 +55,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 if (!isset($_POST[$requiredField])) {
                     return $userStatus = 'One of the required fields is missing';
                 } else {
-                    $dirtyData[] = $_POST[$requiredField];
+                    $dirtyData[$requiredField] = $_POST[$requiredField];
                 }
             }
         }
@@ -77,10 +77,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             if($requiredField == 'addEventStartDate' || $requiredField == 'addEventEndDate') {
                 $newDate = $_POST[$requiredField];
                 $newDate = preg_replace('#(\d{2})/(\d{2})/(\d{4})\s(.*)#', '$3-$2-$1 $4', $newDate);
-                $dirtyData[] = $newDate;
+                $dirtyData[$requiredField] = $newDate;
             }
             else {
-                $dirtyData[] = $_POST[$requiredField];
+                $dirtyData[$requiredField] = $_POST[$requiredField];
             }
         }
         // sanitize the data
@@ -90,7 +90,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if(isset($_POST['editEvent'])) {
-        $possibleFields = ['editEventID', 'editEventName', 'editEventStartDate', 'editEventEndDate', 'editEventMaxCap', 'editAssocVenue'];
+        $possibleFields = ['editEventID', 'editEventName', 'editEventStartDate', 'editEventEndDate', 'editEventMaxCap'];
         $editData = [];
         if(isset($_POST['editEventID']) && !empty($_POST['editEventID'] && is_numeric($_POST['editEventID']))) {
             foreach($possibleFields as $possibleField) {
@@ -106,10 +106,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if(isset($_POST['deleteEvent'])) {
-        $dirtyData = [];
-        $dirtyData[] = $_POST['deleteEventID'];
-        $cleanedData = sanitize($dirtyData);
-        $eventStatus = $event_manager->deleteEvent($cleanedData);
+        if(isset($_POST['deleteEventID']) && !empty($_POST['deleteEventID'] && is_numeric($_POST['deleteEventID']))) {
+            $dirtyData = [];
+            $dirtyData[] = $_POST['deleteEventID'];
+            $cleanedData = sanitize($dirtyData);
+            $eventStatus = $event_manager->deleteEvent($cleanedData);
+        }
     }
 
 
