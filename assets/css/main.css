@@ -52,6 +52,10 @@
     margin-right: 0;
 }
 
+.main-information-table-wrapper h3 {
+    text-align: center;
+}
+
 .main-table-info {
     width: 100%;
     padding-right: 17px;
@@ -91,13 +95,29 @@
     /*display: none;*/
 }
 
-.events-page-header {
+.events-page-header, .registration-page-header {
     text-align: center;
     margin-bottom: 20px;
+    text-decoration: underline;
 }
 
 button {
     margin-right: 10px;
+}
+
+.registration-table-wrapper {
+    margin-bottom: 50px;
+}
+
+.register-forms {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.no-registered-events-msg {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 20px;
 }
 
 audio {

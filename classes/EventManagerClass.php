@@ -34,7 +34,7 @@ class EventManagerClass {
 
     // events data
     function getAllEvents() {
-        $records = $this->db->viewAllManagedEvents();
+        $records = $this->db->viewAllManagedEvents($_SESSION['managerID']);
         return $records;
     }
 
@@ -44,7 +44,7 @@ class EventManagerClass {
 
     // sessions data
     function getAllSessions() {
-        $records = $this->db->viewAllManagedSessions();
+        $records = $this->db->viewAllManagedSessions($_SESSION['managerID']);
         return $records;
     }
 
@@ -55,13 +55,9 @@ class EventManagerClass {
 
     // render functions
     function renderAttendeeListAndOptions() {
-        foreach($this->getAttendeeEventTableColumns() as $column => $columnName) {
-            if($columnName['column_name'] != 'password') {
-                echo "<th>$columnName[column_name]</th>";
-            }
-        }
+        echo "<th>Attendee ID</th><th>Attendee</th><th>Event ID</th><th>Event</th><th>Money Paid</th><th>Start Date</th><th>End Date</th>";
         foreach($this->getAllAttendees() as $attendee => $attendeeInfo) {
-            echo "<tr><td>$attendeeInfo[event]</td><td>$attendeeInfo[attendee]</td><td>$attendeeInfo[paid]</td></tr>";
+            echo "<tr><td>$attendeeInfo[idattendee]</td><td>$attendeeInfo[name]</td><td>$attendeeInfo[idevent]</td><td>$attendeeInfo[0]</td><td>$$attendeeInfo[paid]</td><td>$attendeeInfo[dateStart]</td><td>$attendeeInfo[dateEnd]</td></tr>";
         }
     }
 
@@ -89,44 +85,140 @@ class EventManagerClass {
 
     // attendee functions
     function addUserToEvent($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $data['addEventAssoc']];
+        if($this->db->getEventByManagerID($validManager) > 0) {
+            $this->db->addAttendeeToEvent($data);
+        }
+        else {
+            return -1;
+        }
     }
 
     function editUserEvent($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $data['editOldEventAssoc']];
+        if($this->db->getEventByManagerID($validManager) > 0) {
+            $this->db->moveAttendeeToEvent($data);
+        }
+        else {
+            return -1;
+        }
     }
 
     function deleteUserEvent($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $data['deleteEventAssoc']];
+        if($this->db->getEventByManagerID($validManager) > 0) {
+            $this->db->deleteAttendeeFromEvent(["ID" => $data['deleteUserByID'], "eventID" => $data['deleteEventAssoc']]);
+        }
+        else {
+            return -1;
+        }
     }
 
 
 
     // event functions
     function addEvent($data) {
-        var_dump($data);
+        // check if venue is even existing before we make the event
+        // then get the last query of the event table(the one we just created) and use that
+        // to link the session that will be generated automatically after the event is generated.
+
+        $venueFound = $this->db->getVenueByID($data['addAssocVenue']);
+        $adminFound = $this->db->viewUserById($data['addAdminEvent']);
+
+        if($venueFound > 0 && $adminFound['role'] === '1') {
+            if($this->db->addEvent($data) > 0) {
+                $eventID = $this->db->getLastEvent();
+
+                $sessionData = ["addSessionEvent" => $data['addSessionEvent'], "addSessionEventCap" => $data['addSessionEventCap'],
+                    "eventID" => $eventID[0], "addSessionStartDateEvent" => $data['addSessionStartDateEvent'],
+                    "addSessionEndDateEvent" => $data['addSessionEndDateEvent']];
+                $sessionStatus = $this->db->addSession($sessionData);
+                if($sessionStatus > 0) {
+                    $adminEventData = ["eventID" => $eventID[0], "attendeeID" => $adminFound['idattendee'], "paid" => 0];
+                    $managerEventData = ["eventID" => $eventID[0], "attendeeID" => $_SESSION['managerID'], "paid" => 0];
+                    $this->db->addAttendeeEventRecord($adminEventData);
+                    $this->db->addAttendeeEventRecord($managerEventData);
+                    $this->db->addManagerEventRecord(["eventID" => $eventID[0], "managerID" => $_SESSION['managerID']]);
+                }
+                else {
+                    return -1;
+                }
+            }
+        }
+        else {
+            return -1;
+        }
     }
 
     function editEvent($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $_POST[$data[0]]];
+        if ($this->db->getEventByManagerID($validManager) > 0) {
+            $this->db->editEvent($data);
+        }
+        else {
+            return -1;
+        }
     }
 
     function deleteEvent($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $data['deleteEventID']];
+        if ($this->db->getEventByManagerID($validManager) > 0) {
+            $this->db->deleteEvent($data);
+        }
+        else {
+            return -1;
+        }
     }
 
 
 
     // session functions
     function addSession($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $data['eventID']];
+        if ($this->db->getEventByManagerID($validManager) > 0) {
+            $this->db->addSession($data);
+        }
+        else {
+            return -1;
+        }
     }
 
     function editSession($data) {
-        var_dump($data);
+        // check to make sure they are the event manager for the event
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $_POST[$data[0]]];
+        if ($this->db->getEventByManagerID($validManager) > 0) {
+            // there exists the session in the event they were looking for
+            if($this->db->checkSessionInEvent(["eventID" => $_POST[$data[0]], "sessionID" => $_POST[$data[1]]]) > 0) {
+                $this->db->editSession($data);
+            }
+            else {
+                return -1;
+            }
+        }
+        else {
+            return -1;
+        }
     }
 
     function deleteSession($data) {
-        var_dump($data);
+        $validManager = ["managerID" => $_SESSION['managerID'], "eventID" => $data['deleteSessionEventID']];
+        if ($this->db->getEventByManagerID($validManager) > 0) {
+            // there exists the session in the event they were looking to delete
+            if($this->db->checkSessionInEvent(["eventID" => $data['deleteSessionEventID'], "sessionID" => $data['deleteSessionID']]) > 0) {
+                $this->db->deleteSession(["deleteSessionID" => $data['deleteSessionID']]);
+            }
+            else {
+                return -1;
+            }
+        }
+        else {
+            return -1;
+        }
     }
 }

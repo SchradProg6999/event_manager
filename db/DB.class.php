@@ -50,6 +50,7 @@ class DB {
             $_SESSION['managerID'] = $userInfo[0]['idattendee'];
 
             $_SESSION['username'] = $username;
+            $_SESSION['userID'] = $userInfo[0]['idattendee'];
             $this->checkRoleAndRedirect($userInfo[0]['role']);
         }
         else {
@@ -484,20 +485,6 @@ class DB {
         }
     }
 
-    // getting column names
-    public function getAttendeeEventTableColumns() {
-        $data = [];
-
-        $queryString = "select column_name from information_schema.columns where table_schema = 'jas6531' and table_name = 'attendee_event'";
-        $stmt = $this->dbh->prepare($queryString);
-        $stmt->execute();
-
-        while($row=$stmt->fetch()) {
-            $data[] = $row;
-        }
-        return $data;
-    }
-
     public function getAttendeeTableColumns() {
         $data = [];
 
@@ -556,10 +543,11 @@ class DB {
     public function viewAllManagedAttendees($managerID) {
         $data = [];
 
-        $queryString = "select attendee_event.*  from attendee
-                            join manager_event on attendee.idattendee = manager_event.manager
-                            join attendee_event on manager_event.event = attendee_event.event
-                            where attendee.idattendee = :id";
+        $queryString = "select event.name, event.idevent, attendee.name, attendee.idattendee, event.dateStart, event.dateEnd, attendee_event.paid from manager_event
+                        join event on manager_event.event = event.idevent
+                        join attendee_event on event.idevent = attendee_event.event
+                        join attendee on attendee_event.attendee = attendee.idattendee
+                        where manager_event.manager = $managerID";
         $stmt = $this->dbh->prepare($queryString);
         $stmt->execute(["id"=>$managerID]);
 
@@ -569,12 +557,15 @@ class DB {
         return $data;
     }
 
-    public function viewAllManagedEvents() {
+    public function viewAllManagedEvents($managerID) {
         $data = [];
 
-        $queryString = "select * from event";
+        $queryString = "select event.* from attendee
+                        join manager_event on manager_event.manager = attendee.idattendee
+                        join event on manager_event.event = event.idevent
+                        where idattendee = :id";
         $stmt = $this->dbh->prepare($queryString);
-        $stmt->execute();
+        $stmt->execute(["id" => $managerID]);
 
         while($row=$stmt->fetch()) {
             $data[] = $row;
@@ -582,10 +573,14 @@ class DB {
         return $data;
     }
 
-    public function viewAllManagedSessions() {
+    public function viewAllManagedSessions($managerID) {
         $data = [];
 
-        $queryString = "select * from session";
+        $queryString = "select session.* from attendee
+                        join manager_event on manager_event.manager = attendee.idattendee
+                        join event on event.idevent = manager_event.event
+                        join session on event.idevent = session.event
+                        where attendee.idattendee = $managerID";
         $stmt = $this->dbh->prepare($queryString);
         $stmt->execute();
 
@@ -636,5 +631,139 @@ class DB {
             exit();
         }
     }
+
+
+    // adding user to attendee_event table
+    public function addAttendeeToEvent($data) {
+        try {
+            $queryString = "insert into attendee_event(event, attendee, paid) values (:event, :attendee, :paid)";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "event" => $data['addEventAssoc'],
+                    "attendee" => $data['addUserID'],
+                    "paid" => $data['addEventPaid']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    // moving user from on event to another
+    public function moveAttendeeToEvent($data) {
+        try {
+            $queryString = "update attendee_event set event = :newEventID
+                            where event = :oldEventID and attendee = :userID";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "newEventID" => $data['editNewEventAssoc'],
+                    "oldEventID" => $data['editOldEventAssoc'],
+                    "userID" => $data['editUserID']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    // deleting user from attendee_event table
+    public function deleteAttendeeFromEvent($data) {
+        try {
+            $queryString = "delete from attendee_event where attendee = :id and event = :eventID";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "id" => $data['ID'],
+                    "eventID" => $data['eventID']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    public function getEventByManagerID($data) {
+        try {
+            $queryString = "select * from manager_event where manager = :managerID and event = :eventPassed";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "managerID" => $data['managerID'],
+                    "eventPassed" => $data['eventID']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    public function checkSessionInEvent($data) {
+        try {
+            $queryString = "select * from session where idsession = :sessionID and event = :eventID";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(
+                [
+                    "sessionID" => $data['sessionID'],
+                    "eventID" => $data['eventID']
+                ]
+            );
+            return $stmt->rowCount();
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    public function getEventsByUserID($id) {
+        $data = [];
+        try {
+            $queryString = "select venue.name, event.name, event.datestart, event.dateend, attendee_event.paid from event
+                            join attendee_event on attendee_event.event = event.idevent
+                            join venue on event.venue = venue.idvenue
+                            where attendee_event.attendee = :id";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(["id" => $id]
+            );
+
+            while($row=$stmt->fetch()) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
+    public function getSessionsByUserID($id) {
+        $data = [];
+        try {
+            $queryString = "select session.name, session.event, session.startdate, session.enddate from session
+                            join attendee_session on session.idsession = attendee_session.session
+                            where attendee_session.attendee = :id";
+            $stmt = $this->dbh->prepare($queryString);
+            $stmt->execute(["id" => $id]
+            );
+
+            while($row=$stmt->fetch()) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        catch(PDOException $e) {
+            exit();
+        }
+    }
+
 } // end of class
 ?>
